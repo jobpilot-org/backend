@@ -219,9 +219,10 @@ web3 = 30
 # secret = ""
 
 [auth.email]
-# Allow/disallow new user signups via email to your project.
-# Konten werden im Dashboard angelegt, die App bietet keine Registrierung.
-enable_signup = false
+# Der E-Mail-Anbieter muss aktiv bleiben, sonst sind auch Anmeldungen gesperrt: Die CLI setzt
+# `enable_signup = false` hier auf GOTRUE_EXTERNAL_EMAIL_ENABLED=false. Registrierungen verhindert
+# stattdessen `enable_signup = false` unter [auth] oben; Konten legt man im Dashboard an.
+enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
