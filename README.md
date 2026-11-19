@@ -36,6 +36,12 @@ zugreifen: `applications`, `status_events`, `contacts`, `notes`, `appointments`,
 sind `timestamptz`, `applied_at` ist `date`; IDs bleiben `text`, damit die von den Apps erzeugten IDs
 übernommen werden können.
 
+`supabase/migrations/20261119180100_status_event_trigger.sql` überlässt den Statusverlauf der
+Datenbank: Ein Trigger auf `applications` schreibt beim Anlegen `null → status` (zum `created_at`)
+und bei jedem Statuswechsel `alt → neu` (zu `now()`) nach `status_events` – in derselben Anweisung
+wie die Änderung. Die Apps lesen den Verlauf nur noch; schreiben, ändern oder löschen können sie ihn
+nicht.
+
 ## Lokal starten
 
 Voraussetzung: [Supabase CLI](https://supabase.com/docs/guides/cli) und Docker.

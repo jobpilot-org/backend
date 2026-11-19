@@ -37,7 +37,16 @@ select table_privs_are(
   array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
   'authenticated may read and write ' || name
 )
-  from app_tables;
+  from app_tables
+ where name <> 'status_events';
+
+select table_privs_are(
+  'public',
+  'status_events',
+  'authenticated',
+  array['SELECT'],
+  'authenticated may only read status events; the trigger writes them'
+);
 
 select col_is_pk('public', 'reminders', array['user_id', 'key'], 'reminder keys are unique per user');
 select col_is_pk('public', 'settings', array['user_id', 'key'], 'setting keys are unique per user');
@@ -121,10 +130,10 @@ select is(
   'user_id defaults to the caller'
 );
 
-select lives_ok(
-  $$insert into public.status_events (application_id, from_status, to_status)
-    values ('app-1', null, 'applied')$$,
-  'user one records a status event'
+select is(
+  (select count(*) from public.status_events where application_id = 'app-1')::int,
+  1,
+  'creating the application recorded its first status event'
 );
 
 select lives_ok(
