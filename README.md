@@ -28,6 +28,14 @@ supabase/
 Die Entschlüsselung braucht damit keinen Service-Rollen-Schlüssel: Der API-Server schickt das
 Bearer-Token des Aufrufers, und `get_ai_api_key()` liest allein über `auth.uid()` dessen Key.
 
+`supabase/migrations/20261119180000_app_data.sql` legt die Anwendungsdaten an, auf die alle Apps
+zugreifen: `applications`, `status_events`, `contacts`, `notes`, `appointments`, `reminders` und
+`settings` – gespiegelt aus dem Drizzle-Schema der mobile-app, ergänzt um `user_id` (Standard
+`auth.uid()`). RLS beschränkt jeden Nutzer auf die eigenen Zeilen; Kindtabellen verweisen über
+`(user_id, application_id)` auf ihre Bewerbung und können so nie an eine fremde hängen. Zeitpunkte
+sind `timestamptz`, `applied_at` ist `date`; IDs bleiben `text`, damit die von den Apps erzeugten IDs
+übernommen werden können.
+
 ## Lokal starten
 
 Voraussetzung: [Supabase CLI](https://supabase.com/docs/guides/cli) und Docker.
