@@ -53,10 +53,12 @@ RPC `replace_profile(jsonb)` ersetzt das ganze Profil in einer Transaktion (PDF-
 Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt
 den Entwurf zur Kontrolle und ruft danach `replace_profile` auf.
 
-`supabase/functions/profile-review` ist der KI-Check des Profils: Sie nimmt das Profil ohne Name und
-Kontaktdaten (nur, ob sie vorhanden sind) und optional eine Zielposition entgegen und liefert
-Punktzahl (0–100), Gesamteinschätzung, Stärken und Verbesserungsvorschläge, teils mit fertigem
-Ersatztext für Berufsbezeichnung, Kurzprofil, Stichpunkte einer Station oder eine Kenntnisgruppe.
+`supabase/functions/profile-review` ist der KI-Check des Profils auf grobe inhaltliche Fehler
+(Widersprüche, Zeiträume, Lücken, fehlende Pflichtangaben, Doppelungen, Tippfehler) – ohne Bezug
+auf eine Stelle. Sie nimmt das Profil ohne Name und Kontaktdaten (nur, ob sie vorhanden sind)
+entgegen und liefert Punktzahl (0–100), Gesamteinschätzung, Stärken und Korrekturvorschläge, teils
+mit fertigem Ersatztext für Berufsbezeichnung, Kurzprofil, Stichpunkte einer Station oder eine
+Kenntnisgruppe.
 Gespeichert wird nichts; übernommene Vorschläge schreibt die App selbst.
 
 Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich beide Funktionen in

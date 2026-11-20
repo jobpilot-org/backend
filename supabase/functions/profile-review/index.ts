@@ -1,11 +1,11 @@
-// Profil-Check: Nimmt das Profil des angemeldeten Nutzers (ohne Kontaktdaten) und optional eine
-// Zielposition entgegen, lässt es mit dem KI-Key des Nutzers von Claude bewerten und gibt
-// Bewertung, Stärken und Verbesserungsvorschläge zurück. Gespeichert wird hier nichts – Vorschläge
+// Profil-Check: Nimmt das Profil des angemeldeten Nutzers (ohne Kontaktdaten) entgegen, lässt es
+// mit dem KI-Key des Nutzers von Claude auf grobe inhaltliche Fehler prüfen und gibt Bewertung,
+// Stärken und Korrekturvorschläge zurück. Gespeichert wird hier nichts – Vorschläge
 // übernimmt die App einzeln über die normalen Profil-Repositories.
 //
 // Token, KI-Key und Fehlercodes: siehe ../_shared/ai-request.ts.
 //
-// POST { profile, targetRole? }  →  200 { review } | 4xx/5xx { error: "<code>" }
+// POST { profile }  →  200 { review } | 4xx/5xx { error: "<code>" }
 
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 
@@ -21,7 +21,7 @@ function parseInput(body: unknown) {
 }
 
 serveAi('Profil-Check', parseInput, async (input, client) => {
-  // Gestreamt, weil eine gründliche Bewertung eine Weile braucht
+  // Gestreamt, weil die Prüfung eine Weile braucht
   const stream = client.beta.messages.stream({
     model: MODEL,
     max_tokens: 16000,
