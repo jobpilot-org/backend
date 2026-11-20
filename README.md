@@ -42,6 +42,18 @@ und bei jedem Statuswechsel `alt → neu` (zu `now()`) nach `status_events` – 
 wie die Änderung. Die Apps lesen den Verlauf nur noch; schreiben, ändern oder löschen können sie ihn
 nicht.
 
+`supabase/migrations/20261120073146_profile.sql` legt das Profil (Lebenslauf) an: `profiles` (eine
+Zeile je Nutzer mit Kopfdaten, Kurzprofil und `onboarded_at` für die Willkommensseite),
+`profile_entries` (Berufserfahrung und Ausbildung, unterschieden über `kind`; Zeiträume als `YYYY`
+oder `YYYY-MM`), `profile_skills` und `profile_languages`, alle mit RLS auf die eigenen Zeilen. Die
+RPC `replace_profile(jsonb)` ersetzt das ganze Profil in einer Transaktion (PDF-Import, Assistent).
+
+`supabase/functions/cv-import` ist eine Edge Function für den Lebenslauf-Import: Sie nimmt ein PDF
+(Base64) entgegen, prüft das Bearer-Token bei Supabase, holt über `get_ai_api_key()` den KI-Key des
+Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt
+den Entwurf zur Kontrolle und ruft danach `replace_profile` auf. Lokal läuft die Funktion mit
+`supabase start`; ins gehostete Projekt mit `supabase functions deploy cv-import`.
+
 ## Lokal starten
 
 Voraussetzung: [Supabase CLI](https://supabase.com/docs/guides/cli) und Docker.
