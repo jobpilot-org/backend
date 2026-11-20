@@ -65,7 +65,7 @@ supabase status       # URLs und Keys, auch später jederzeit abrufbar
 
 - API: `http://localhost:54321`, Studio: `http://localhost:54323`, Datenbank: Port `54322`
 - Die Werte für die App stehen in `../mobile/.env.local` (siehe `../mobile/README.md`).
-- Sign-ups sind freigeschaltet (`enable_signup = true`, Passwort mind. 8 Zeichen mit Buchstaben und Ziffern; Großbuchstabe und Sonderzeichen verlangen die Apps); Vor- und Nachname speichern die Apps in `user_metadata`. Im gehosteten Projekt muss „Allow new users to sign up“ im Dashboard ebenfalls an sein.
+- Sign-ups sind freigeschaltet (`enable_signup = true`, Passwort mind. 8 Zeichen mit Buchstaben und Ziffern; Großbuchstabe und Sonderzeichen verlangen die Apps); Vor- und Nachname speichern die Apps in `user_metadata`. Im gehosteten Projekt muss „Allow new users to sign up“ im Dashboard ebenfalls an sein. Außerdem ist dort unter *Authentication → Sign In / Providers → Email* „Confirm email“ ausgeschaltet (wie lokal `enable_confirmations = false`): Der eingebaute Mailversand stellt nur an Team-Adressen zu, und der Bestätigungslink führt auf die Site URL, die keine der Apps bedient. Mit Bestätigung bliebe die Registrierung bei „E-Mail bestätigen“ hängen.
 
 ## Migrationen
 
