@@ -426,3 +426,8 @@ enabled = true
 # deshalb aus – sie kennt die Publishable Keys der Apps nicht als JWT.
 [functions.cv-import]
 verify_jwt = false
+
+# Profil-Check (Profil → Bewertung und Verbesserungsvorschläge per KI). Prüft das Token selbst wie
+# cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
+[functions.profile-review]
+verify_jwt = false

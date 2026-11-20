@@ -51,8 +51,17 @@ RPC `replace_profile(jsonb)` ersetzt das ganze Profil in einer Transaktion (PDF-
 `supabase/functions/cv-import` ist eine Edge Function für den Lebenslauf-Import: Sie nimmt ein PDF
 (Base64) entgegen, prüft das Bearer-Token bei Supabase, holt über `get_ai_api_key()` den KI-Key des
 Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt
-den Entwurf zur Kontrolle und ruft danach `replace_profile` auf. Lokal läuft die Funktion mit
-`supabase start`; ins gehostete Projekt mit `supabase functions deploy cv-import`.
+den Entwurf zur Kontrolle und ruft danach `replace_profile` auf.
+
+`supabase/functions/profile-review` ist der KI-Check des Profils: Sie nimmt das Profil ohne Name und
+Kontaktdaten (nur, ob sie vorhanden sind) und optional eine Zielposition entgegen und liefert
+Punktzahl (0–100), Gesamteinschätzung, Stärken und Verbesserungsvorschläge, teils mit fertigem
+Ersatztext für Berufsbezeichnung, Kurzprofil, Stichpunkte einer Station oder eine Kenntnisgruppe.
+Gespeichert wird nichts; übernommene Vorschläge schreibt die App selbst.
+
+Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich beide Funktionen in
+`supabase/functions/_shared/ai-request.ts`. Lokal laufen sie mit `supabase start`; ins gehostete
+Projekt mit `supabase functions deploy cv-import profile-review`.
 
 ## Lokal starten
 
