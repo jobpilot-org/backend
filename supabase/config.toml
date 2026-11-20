@@ -174,14 +174,15 @@ enable_refresh_token_rotation = true
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
-# Konten werden im Dashboard angelegt, die App bietet keine Registrierung.
-enable_signup = false
+# Die Apps bieten „Neuen Benutzer anlegen“ (E-Mail + Passwort, Vor-/Nachname in user_metadata).
+enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+# Gleiche Grenze wie MIN_PASSWORD_LENGTH in src/domain/forms.ts der Apps.
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -220,8 +221,8 @@ web3 = 30
 
 [auth.email]
 # Der E-Mail-Anbieter muss aktiv bleiben, sonst sind auch Anmeldungen gesperrt: Die CLI setzt
-# `enable_signup = false` hier auf GOTRUE_EXTERNAL_EMAIL_ENABLED=false. Registrierungen verhindert
-# stattdessen `enable_signup = false` unter [auth] oben; Konten legt man im Dashboard an.
+# `enable_signup = false` hier auf GOTRUE_EXTERNAL_EMAIL_ENABLED=false. Ob sich Nutzer selbst
+# registrieren dürfen, steuert `enable_signup` unter [auth] oben.
 enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.

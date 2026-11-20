@@ -53,7 +53,7 @@ supabase status       # URLs und Keys, auch später jederzeit abrufbar
 
 - API: `http://localhost:54321`, Studio: `http://localhost:54323`, Datenbank: Port `54322`
 - Die Werte für die App stehen in `../mobile/.env.local` (siehe `../mobile/README.md`).
-- Konten werden im Studio angelegt oder per Seed-SQL; Sign-ups sind abgeschaltet.
+- Sign-ups sind freigeschaltet (`enable_signup = true`, Passwort mind. 8 Zeichen); Vor- und Nachname speichern die Apps in `user_metadata`. Im gehosteten Projekt muss „Allow new users to sign up“ im Dashboard ebenfalls an sein.
 
 ## Migrationen
 
