@@ -61,9 +61,15 @@ mit fertigem Ersatztext für Berufsbezeichnung, Kurzprofil, Stichpunkte einer St
 Kenntnisgruppe.
 Gespeichert wird nichts; übernommene Vorschläge schreibt die App selbst.
 
-Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich beide Funktionen in
+`supabase/functions/job-import` liest aus dem Text einer Stellenanzeige (z. B. dem sichtbaren
+Seitentext, den die Browser-Extension schickt) die Eckdaten für eine Bewerbung: Firma, Rolle, Ort,
+Arbeitsmodell, Gehalt, geforderte Fähigkeiten, Ansprechpartner und eine Kurzbeschreibung – im
+selben Format wie „Bewerbung aus Stellenanzeige“ der mobile-app. Gespeichert wird nichts; die
+Extension legt danach selbst eine Bewerbung mit Status `saved` („Gemerkt“) an.
+
+Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich alle Funktionen in
 `supabase/functions/_shared/ai-request.ts`. Lokal laufen sie mit `supabase start`; ins gehostete
-Projekt mit `supabase functions deploy cv-import profile-review`.
+Projekt mit `supabase functions deploy cv-import profile-review job-import`.
 
 ## Lokal starten
 

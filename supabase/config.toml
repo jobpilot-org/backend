@@ -431,3 +431,8 @@ verify_jwt = false
 # cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
 [functions.profile-review]
 verify_jwt = false
+
+# Stellenanzeigen-Import (Anzeigentext → Eckdaten per KI), u. a. für die Browser-Extension. Prüft das
+# Token selbst wie cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
+[functions.job-import]
+verify_jwt = false
