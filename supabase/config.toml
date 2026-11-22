@@ -436,3 +436,8 @@ verify_jwt = false
 # Token selbst wie cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
 [functions.job-import]
 verify_jwt = false
+
+# Passung Profil ↔ Stellenangebot (Score, Pros/Contras, Prognose). Prüft das Token selbst wie
+# cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
+[functions.job-fit]
+verify_jwt = false

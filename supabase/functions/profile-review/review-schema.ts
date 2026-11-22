@@ -1,40 +1,13 @@
 import { z } from 'zod';
 
+import { profileInputSchema } from '../_shared/profile-input.ts';
+
 // Eingabe und Antwortformat des Profil-Checks (nur grobe inhaltliche Fehler, ohne Bezug auf eine
 // Stelle – das Zuschneiden auf eine Stellenanzeige ist ein eigenes, geplantes Feature). Muss zu `src/domain/profile-review.ts` der
 // desktop-app passen: Die App schickt das Profil ohne Kontaktdaten (nur, ob sie vorhanden sind),
 // prüft die Antwort noch einmal und verwirft Vorschläge, deren Ziel es im Profil nicht gibt.
 
-const text = z.string().max(5000).optional();
-
-const entry = z.object({
-  id: z.string().max(100),
-  title: z.string().max(500),
-  organization: text,
-  location: text,
-  description: text,
-  period: z.string().max(100),
-});
-
-export const reviewInputSchema = z.object({
-  profile: z.object({
-    headline: text,
-    city: text,
-    summary: text,
-    contact: z.object({
-      address: z.boolean(),
-      phone: z.boolean(),
-      email: z.boolean(),
-      birthDate: z.boolean(),
-    }),
-    experience: z.array(entry).max(60),
-    education: z.array(entry).max(60),
-    skills: z
-      .array(z.object({ id: z.string().max(100), category: text, items: z.string().max(5000) }))
-      .max(60),
-    languages: z.array(z.object({ language: z.string().max(100), level: text })).max(30),
-  }),
-});
+export const reviewInputSchema = z.object({ profile: profileInputSchema });
 
 export const reviewSchema = z.object({
   score: z.number().int().describe('Gesamtbewertung von 0 bis 100'),

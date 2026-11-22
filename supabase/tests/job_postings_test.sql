@@ -6,7 +6,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(17);
 
 select has_table('public', 'job_postings', 'job_postings exists');
 
@@ -91,6 +91,20 @@ select throws_ok(
   '23505',
   null,
   'at most one posting per application'
+);
+
+select lives_ok(
+  $$update public.job_postings
+      set fit_score = 82, fit_result = '{"level": "hoch"}', fit_profile_hash = 'p1', fit_posting_hash = 'j1'
+    where id = 'posting-one'$$,
+  'user one stores a fit assessment'
+);
+
+select throws_ok(
+  $$update public.job_postings set fit_score = 120 where id = 'posting-one'$$,
+  '23514',
+  null,
+  'fit_score stays between 0 and 100'
 );
 
 select isnt(
