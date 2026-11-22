@@ -27,6 +27,8 @@ export const profileInputSchema = z.object({
   }),
   experience: z.array(entry).max(60),
   education: z.array(entry).max(60),
+  /** Ehrenamt – optional, damit ältere Apps weiter funktionieren */
+  volunteering: z.array(entry).max(60).optional(),
   skills: z
     .array(z.object({ id: z.string().max(100), category: text, items: z.string().max(5000) }))
     .max(60),

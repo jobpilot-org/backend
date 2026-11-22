@@ -54,6 +54,11 @@ Stellenangebot eine Bewerbung, zeigt `application_id` darauf (je Bewerbung höch
 Stellenangebot; Löschen der Bewerbung hebt nur die Verknüpfung auf); `dismissed_at` markiert
 „nicht interessant“.
 
+`supabase/migrations/20261122074555_profile_links_volunteering.sql` ergänzt das Profil um Ehrenamt
+(`profile_entries.kind = 'volunteer'`) und Links (`profile_links`: LinkedIn, XING, GitHub, GitLab,
+Website, Sonstiges; nur http(s)). `replace_profile` nimmt `volunteering` und – nur wenn vorhanden –
+`links` entgegen.
+
 `supabase/functions/cv-import` ist eine Edge Function für den Lebenslauf-Import: Sie nimmt ein PDF
 (Base64) entgegen, prüft das Bearer-Token bei Supabase, holt über `get_ai_api_key()` den KI-Key des
 Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt
