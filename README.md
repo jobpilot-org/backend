@@ -59,6 +59,11 @@ Stellenangebot; Löschen der Bewerbung hebt nur die Verknüpfung auf); `dismisse
 Website, Sonstiges; nur http(s)). `replace_profile` nimmt `volunteering` und – nur wenn vorhanden –
 `links` entgegen.
 
+`supabase/migrations/20261122081032_job_posting_sources.sql` legt `job_posting_sources` an: Jede
+Fundstelle eines Stellenangebots (Jobportal oder Firmenseite) mit ihren Angaben. Ein Trigger leitet
+daraus die Spalten von `job_postings` ab – je Feld zuerst die Firmenseite, sonst die neueste Quelle
+(Gehalt von/bis zusammen aus einer Quelle). Neu am Stellenangebot: `apply_email`, `apply_url`.
+
 `supabase/functions/cv-import` ist eine Edge Function für den Lebenslauf-Import: Sie nimmt ein PDF
 (Base64) entgegen, prüft das Bearer-Token bei Supabase, holt über `get_ai_api_key()` den KI-Key des
 Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt
