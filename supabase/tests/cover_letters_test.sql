@@ -3,7 +3,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(13);
+select plan(15);
 
 select has_table('public', 'cover_letters', 'cover_letters exists');
 
@@ -41,6 +41,18 @@ select lives_ok(
     values ('c1', 'p1', 'Guten Tag,', 'Bewerbung als Dev',
             '[{"key": "intro", "text": "Einstieg"}, {"key": "closing", "text": "Schluss"}]')$$,
   'user one writes a cover letter for a posting'
+);
+
+select lives_ok(
+  $$update public.cover_letters set address = 'du', tone = 'bold' where id = 'c1'$$,
+  'address and the new tones are accepted'
+);
+
+select throws_ok(
+  $$update public.cover_letters set address = 'ihr' where id = 'c1'$$,
+  '23514',
+  null,
+  'only du or Sie'
 );
 
 select throws_ok(

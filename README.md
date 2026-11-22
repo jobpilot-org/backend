@@ -92,7 +92,7 @@ legt das Ergebnis mit Hashes von Profil und Anzeigentext in `job_postings.fit_*`
 `supabase/functions/cover-letter` schreibt Anschreiben: entweder einen ganzen Entwurf (Betreff und
 die fünf Abschnitte Einstieg, Passung, Stärken, Motivation, Schluss) oder einen einzelnen Abschnitt
 neu, auf Wunsch mit Hinweis („kürzer“). Eingaben sind das Profil ohne Kontaktdaten, die Stelle,
-Anrede, Tonalität, Länge und die Stärken zum Hervorheben; nur Fakten aus dem Profil. Gespeichert
+Anrede, Du oder Sie, Tonalität (förmlich bis frech), Länge und die Stärken zum Hervorheben; nur Fakten aus dem Profil. Gespeichert
 wird nichts; die App legt das Anschreiben in `cover_letters` ab – eines je Stellenangebot bzw.
 Bewerbung, beim Anlegen der Bewerbung wandert es mit; fällt der letzte Bezug weg, wird es gelöscht
 (Migration `20261122093752_cover_letters.sql`).

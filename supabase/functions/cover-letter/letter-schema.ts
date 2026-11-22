@@ -21,7 +21,8 @@ export const letterInputSchema = z.object({
     description: z.string().trim().max(20_000).optional(),
   }),
   salutation: z.string().trim().max(200),
-  tone: z.enum(['formal', 'modern', 'personal']),
+  tone: z.enum(['formal', 'conservative', 'modern', 'personal', 'enthusiastic', 'creative', 'bold']),
+  address: z.enum(['sie', 'du']).default('sie'),
   length: z.enum(['short', 'medium']),
   strengths: z.array(z.string().trim().max(300)).max(10),
   /** Bisherige Abschnitte – Zusammenhang beim Neuschreiben eines Abschnitts */
@@ -44,9 +45,18 @@ export const sectionSchema = z.object({
 });
 
 const TONES = {
-  formal: 'formell und klassisch („Sie“, gediegene Sprache, keine Umgangssprache)',
-  modern: 'modern und sachlich („Sie“, klar und direkt, ohne Floskeln)',
-  personal: 'persönlich und locker (darf „Du“ verwenden, wenn die Anzeige duzt; sonst „Sie“), mit eigener Stimme',
+  formal: 'förmlich: korrekt, höflich und distanziert, vollständige Sätze, keine Umgangssprache',
+  conservative: 'konservativ: klassisch und zurückhaltend, bewährte Formulierungen, keine Experimente – passt zu Banken, Behörden, Kanzleien',
+  modern: 'modern und sachlich: klar und direkt, kurze Sätze, ohne Floskeln',
+  personal: 'persönlich und warm: eigene Stimme, nahbar, zeigt den Menschen hinter dem Lebenslauf',
+  enthusiastic: 'begeistert: spürbare Energie und Leidenschaft für die Aufgabe, ohne zu übertreiben oder anzubiedern',
+  creative: 'kreativ: ungewöhnlicher Aufhänger, bildhafte Sprache, darf überraschen – bleibt aber inhaltlich belegt',
+  bold: 'frech und mutig: selbstbewusst, pointiert, mit Augenzwinkern und Humor in Maßen; unkonventioneller Einstieg erlaubt, aber nie respektlos oder albern',
+};
+
+const ADDRESS = {
+  sie: 'Sie-Form: die Empfänger durchgehend siezen („Sie“, „Ihr Unternehmen“, „Ihnen“)',
+  du: 'Du-Form: die Empfänger durchgehend duzen („du“, „dein“; ein Team mit „ihr“, „euch“, „euer“) – auch im Schluss',
 };
 
 const LENGTHS = {
@@ -86,6 +96,7 @@ export function letterUserPrompt(input: LetterInput) {
     '',
     `Ansprache im Brief: ${input.salutation || 'Sehr geehrte Damen und Herren,'}`,
     `Tonalität: ${TONES[input.tone]}`,
+    `Anrede im Text: ${ADDRESS[input.address]}`,
     `Länge: ${LENGTHS[input.length]}`,
     input.strengths.length
       ? `Diese Stärken sollen hervorgehoben werden:\n${input.strengths.map((s) => `- ${s}`).join('\n')}`
