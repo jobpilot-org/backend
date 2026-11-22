@@ -73,9 +73,15 @@ Arbeitsmodell, Gehalt, geforderte Fähigkeiten, Ansprechpartner und eine Kurzbes
 selben Format wie „Bewerbung aus Stellenanzeige“ der mobile-app. Gespeichert wird nichts; die
 Extension legt danach selbst eine Bewerbung mit Status `saved` („Gemerkt“) an.
 
+`supabase/functions/job-fit` bewertet, wie gut das Profil (ohne Name und Kontaktdaten, Format in
+`_shared/profile-input.ts` wie bei `profile-review`) zu einem Stellenangebot passt: Score 0–100,
+Einstufung, Pros, Contras, Prognose und was betont werden sollte. Gespeichert wird nichts; die App
+legt das Ergebnis mit Hashes von Profil und Anzeigentext in `job_postings.fit_*` ab
+(Migration `20261122073915_job_posting_fit.sql`).
+
 Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich alle Funktionen in
 `supabase/functions/_shared/ai-request.ts`. Lokal laufen sie mit `supabase start`; ins gehostete
-Projekt mit `supabase functions deploy cv-import profile-review job-import`.
+Projekt mit `supabase functions deploy cv-import profile-review job-import job-fit`.
 
 ## Lokal starten
 
