@@ -441,3 +441,8 @@ verify_jwt = false
 # cv-import; deshalb ebenfalls ohne JWT-Prüfung am Gateway.
 [functions.job-fit]
 verify_jwt = false
+
+# Anschreiben (Entwurf bzw. einzelner Abschnitt per KI). Prüft das Token selbst wie cv-import;
+# deshalb ebenfalls ohne JWT-Prüfung am Gateway.
+[functions.cover-letter]
+verify_jwt = false
