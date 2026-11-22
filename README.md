@@ -48,6 +48,12 @@ Zeile je Nutzer mit Kopfdaten, Kurzprofil und `onboarded_at` für die Willkommen
 oder `YYYY-MM`), `profile_skills` und `profile_languages`, alle mit RLS auf die eigenen Zeilen. Die
 RPC `replace_profile(jsonb)` ersetzt das ganze Profil in einer Transaktion (PDF-Import, Assistent).
 
+`supabase/migrations/20261122070714_job_postings.sql` legt `job_postings` an: gemerkte
+Stellenangebote (z. B. aus der Browser-Extension), getrennt von Bewerbungen. Wird aus einem
+Stellenangebot eine Bewerbung, zeigt `application_id` darauf (je Bewerbung höchstens ein
+Stellenangebot; Löschen der Bewerbung hebt nur die Verknüpfung auf); `dismissed_at` markiert
+„nicht interessant“.
+
 `supabase/functions/cv-import` ist eine Edge Function für den Lebenslauf-Import: Sie nimmt ein PDF
 (Base64) entgegen, prüft das Bearer-Token bei Supabase, holt über `get_ai_api_key()` den KI-Key des
 Aufrufers und lässt Claude daraus einen Profilentwurf lesen. Gespeichert wird nichts; die App zeigt

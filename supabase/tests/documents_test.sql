@@ -200,7 +200,8 @@ select is(
 
 update public.documents set title = 'Gekapert' where id = 'doc-one';
 -- Direct DELETE on storage.objects is blocked by Supabase anyway; the policy shows on UPDATE
-update storage.objects set metadata = '{"gekapert": true}' where bucket_id = 'documents';
+update storage.objects set metadata = '{"gekapert": true}'
+  where bucket_id = 'documents' and name like '11111111-1111-1111-1111-111111111111/%';
 
 select lives_ok(
   $$insert into public.documents (kind, title, file_name, mime_type, size_bytes, storage_path, profile_entry_id)
@@ -218,7 +219,8 @@ select is(
 );
 
 select is(
-  (select metadata from storage.objects where bucket_id = 'documents'),
+  (select metadata from storage.objects
+    where bucket_id = 'documents' and name like '11111111-1111-1111-1111-111111111111/%'),
   null,
   'user two cannot change user one''s file'
 );

@@ -204,7 +204,12 @@ select is(
   'user two''s replace left user one''s entries alone'
 );
 
-select is((select count(*) from public.profiles)::int, 2, 'each user has their own profile row');
+select is(
+  (select count(*) from public.profiles
+    where user_id in ('11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'))::int,
+  2,
+  'each user has their own profile row'
+);
 
 select * from finish();
 
