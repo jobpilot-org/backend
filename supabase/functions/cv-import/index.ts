@@ -1,17 +1,12 @@
-// Lebenslauf-Import: Nimmt ein PDF entgegen, schickt es mit dem KI-Key des angemeldeten Nutzers an
-// Claude und gibt einen Profilentwurf zurück. Gespeichert wird hier nichts – die App zeigt den
-// Entwurf zur Kontrolle und speichert ihn danach selbst über `replace_profile`.
-//
-// Token, KI-Key und Fehlercodes: siehe ../_shared/ai-request.ts.
-//
-// POST { pdf: "<base64>" }  →  200 { profile } | 4xx/5xx { error: "<code>" }
-
-import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
+import {
+  CV_SYSTEM_PROMPT,
+  CV_USER_PROMPT,
+  cvSchema,
+} from '@jobpilot-org/shared-ai/features/cv-import';
+import { runAnthropic } from '@jobpilot-org/shared-ai/providers/anthropic';
 
 import { fail, json, serveAi } from '../_shared/ai-request.ts';
-import { CV_SYSTEM_PROMPT, CV_USER_PROMPT, cvSchema } from './cv-schema.ts';
 
-const MODEL = 'claude-opus-5-5';
 /** 10 MB PDF; Base64 ist ein Drittel größer */
 const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
@@ -26,30 +21,13 @@ function parsePdf(body: unknown) {
 }
 
 serveAi('Lebenslauf-Import', parsePdf, async (pdf, client) => {
-  // Gestreamt, weil ein zweiseitiger Lebenslauf leicht eine Minute braucht
-  const stream = client.beta.messages.stream({
-    model: MODEL,
-    max_tokens: 16000,
-    // Lehnt das Modell ab, springt serverseitig ein passendes Ersatzmodell ein
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'medium', format: betaZodOutputFormat(cvSchema) },
+  const { output } = await runAnthropic(client, {
     system: CV_SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdf } },
-          { type: 'text', text: CV_USER_PROMPT },
-        ],
-      },
-    ],
+    user: CV_USER_PROMPT,
+    schema: cvSchema,
+    maxTokens: 16000,
+    effort: 'medium',
+    pdf,
   });
-  const message = await stream.finalMessage();
-
-  if (message.stop_reason === 'refusal') return fail(422, 'refused');
-  if (message.stop_reason === 'max_tokens' || !message.parsed_output) {
-    return fail(502, 'incomplete');
-  }
-  return json(200, { profile: message.parsed_output });
+  return json(200, { profile: output });
 });

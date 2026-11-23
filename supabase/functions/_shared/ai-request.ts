@@ -1,12 +1,6 @@
-// Gemeinsamer Rahmen der KI-Funktionen (cv-import, profile-review): CORS, JSON-Antworten mit
-// Fehlercode, Prüfung des Access-Tokens und KI-Key des Aufrufers aus dem Vault.
-//
-// Ablauf wie in den API-Routen der mobile-app (src/server/ai-credentials.ts): Das Access-Token des
-// Aufrufers wird bei Supabase geprüft, die RPC `get_ai_api_key()` liefert über `auth.uid()` genau
-// dessen Key aus dem Vault. Der Key wird nie geloggt und nie zurückgegeben.
-
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { AiApiError, AiIncompleteError, AiRefusalError } from '@jobpilot-org/shared-ai/errors';
 
 // Die desktop-app lädt per file:// (Origin "null"), web-app und Dev-Server von localhost. Geprüft
 // wird über das Bearer-Token, nicht über Cookies – deshalb ist ein offener Origin unbedenklich.
@@ -51,12 +45,20 @@ function publishableKey() {
   return Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 }
 
-/**
- * Bedient OPTIONS, prüft Methode und Token, dann mit `parse` den Body (Response = Fehler) und ruft
- * `handle` mit dem Ergebnis und einem Anthropic-Client mit dem Key des Aufrufers auf. Der Key wird
- * erst nach gültigem Body gelesen. Fehler des KI-Dienstes werden einheitlich auf Fehlercodes
- * abgebildet; `label` steht nur in den Logs.
- */
+function providerFailure(error: unknown): Response | null {
+  if (error instanceof AiRefusalError) return fail(422, 'refused');
+  if (error instanceof AiIncompleteError) return fail(502, 'incomplete');
+  if (!(error instanceof AiApiError)) return null;
+  if (error.status === 401 || error.status === 403) return fail(409, 'invalid-key');
+  if (error.status === 400) {
+    // z. B. beschädigtes oder passwortgeschütztes PDF
+    console.error('KI-Dienst lehnt die Anfrage ab:', error.message);
+    return fail(400, 'bad-request');
+  }
+  console.error('KI-Dienst antwortet mit Status', error.status ?? 'ohne Status');
+  return fail(502, 'ai-unavailable');
+}
+
 export function serveAi<T>(
   label: string,
   parse: (body: unknown) => T | Response,
@@ -104,21 +106,8 @@ export function serveAi<T>(
     try {
       return await handle(input, new Anthropic({ apiKey: apiKey.trim() }));
     } catch (error) {
-      if (
-        error instanceof Anthropic.AuthenticationError ||
-        error instanceof Anthropic.PermissionDeniedError
-      ) {
-        return fail(409, 'invalid-key');
-      }
-      if (error instanceof Anthropic.BadRequestError) {
-        // z. B. beschädigtes oder passwortgeschütztes PDF
-        console.error('KI-Dienst lehnt die Anfrage ab:', error.message);
-        return fail(400, 'bad-request');
-      }
-      if (error instanceof Anthropic.APIError) {
-        console.error('KI-Dienst antwortet mit Status', error.status);
-        return fail(502, 'ai-unavailable');
-      }
+      const failure = providerFailure(error);
+      if (failure) return failure;
       console.error(`${label} fehlgeschlagen:`, error);
       return fail(502, 'ai-unavailable');
     }

@@ -83,8 +83,8 @@ Arbeitsmodell, Gehalt, geforderte Fähigkeiten, Ansprechpartner und eine Kurzbes
 selben Format wie „Bewerbung aus Stellenanzeige“ der mobile-app. Gespeichert wird nichts; die
 Extension legt danach selbst eine Bewerbung mit Status `saved` („Gemerkt“) an.
 
-`supabase/functions/job-fit` bewertet, wie gut das Profil (ohne Name und Kontaktdaten, Format in
-`_shared/profile-input.ts` wie bei `profile-review`) zu einem Stellenangebot passt: Score 0–100,
+`supabase/functions/job-fit` bewertet, wie gut das Profil (ohne Name und Kontaktdaten, Format aus
+`@jobpilot-org/shared-ai` wie bei `profile-review`) zu einem Stellenangebot passt: Score 0–100,
 Einstufung, Pros, Contras, Prognose und was betont werden sollte. Gespeichert wird nichts; die App
 legt das Ergebnis mit Hashes von Profil und Anzeigentext in `job_postings.fit_*` ab
 (Migration `20261122073915_job_posting_fit.sql`).
@@ -101,6 +101,17 @@ Token-Prüfung, KI-Key aus dem Vault und Fehlercodes teilen sich alle Funktionen
 `supabase/functions/_shared/ai-request.ts`. Lokal laufen sie mit `supabase start`; ins gehostete
 Projekt mit `supabase functions deploy cv-import profile-review job-import job-fit cover-letter`.
 
+Schemas, Prompts und der Anthropic-Aufruf der fünf Funktionen liegen im Paket `@jobpilot-org/shared-ai` (GitHub Packages): Die Funktionen importieren sie aus `@jobpilot-org/shared-ai/features/<name>` und `@jobpilot-org/shared-ai/providers/anthropic` und pinnen die Version in ihrer `deno.json` exakt; `_shared/ai-request.ts` behält Token-Prüfung, KI-Key aus dem Vault, CORS und die Abbildung der KI-Fehler auf Fehlercodes (Refusal 422, unvollständige Antwort 502, ungültiger Key 409, abgelehnte Anfrage 400). Jede Funktion hat eine eigene `.npmrc` mit dem Scope-Mapping und dem Platzhalter `${NODE_AUTH_TOKEN}` – kein Token im Repository.
+
+Deno braucht zum Auflösen der npm-Abhängigkeit ein GitHub-Token mit `read:packages` in der Umgebung, sonst booten die Funktionen nicht (die Fehlermeldung im Edge-Runtime-Protokoll endet mit `Bad response: 401`):
+
+```bash
+set -a; . ~/.config/jobpilot/github.env; set +a
+export NODE_AUTH_TOKEN="$GITHUB_PACKAGES_TOKEN"
+```
+
+`supabase/config.toml` reicht das Token über `[edge_runtime.secrets]` in den Edge-Runtime-Container weiter; exportiert sein muss es vor `supabase start`, vor `supabase functions serve` und vor einem Deployment.
+
 ## Lokal starten
 
 Voraussetzung: [Supabase CLI](https://supabase.com/docs/guides/cli) und Docker.
@@ -109,6 +120,8 @@ Voraussetzung: [Supabase CLI](https://supabase.com/docs/guides/cli) und Docker.
 supabase start        # startet Postgres, Auth, API und Studio, wendet alle Migrationen an
 supabase status       # URLs und Keys, auch später jederzeit abrufbar
 ```
+
+Für die Edge Functions muss vorher `NODE_AUTH_TOKEN` exportiert sein (siehe oben), sonst bootet keine von ihnen.
 
 - API: `http://localhost:54321`, Studio: `http://localhost:54323`, Datenbank: Port `54322`
 - Die Werte für die App stehen in `../mobile/.env.local` (siehe `../mobile/README.md`).

@@ -1,18 +1,12 @@
-// Profil-Check: Nimmt das Profil des angemeldeten Nutzers (ohne Kontaktdaten) entgegen, lässt es
-// mit dem KI-Key des Nutzers von Claude auf grobe inhaltliche Fehler prüfen und gibt Bewertung,
-// Stärken und Korrekturvorschläge zurück. Gespeichert wird hier nichts – Vorschläge
-// übernimmt die App einzeln über die normalen Profil-Repositories.
-//
-// Token, KI-Key und Fehlercodes: siehe ../_shared/ai-request.ts.
-//
-// POST { profile }  →  200 { review } | 4xx/5xx { error: "<code>" }
-
-import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
+import {
+  REVIEW_SYSTEM_PROMPT,
+  reviewInputSchema,
+  reviewSchema,
+  reviewUserPrompt,
+} from '@jobpilot-org/shared-ai/features/profile-review';
+import { runAnthropic } from '@jobpilot-org/shared-ai/providers/anthropic';
 
 import { fail, json, serveAi } from '../_shared/ai-request.ts';
-import { REVIEW_SYSTEM_PROMPT, reviewInputSchema, reviewSchema, reviewUserPrompt } from './review-schema.ts';
-
-const MODEL = 'claude-opus-5-5';
 
 function parseInput(body: unknown) {
   if (JSON.stringify(body ?? null).length > 200_000) return fail(413, 'too-large');
@@ -21,22 +15,12 @@ function parseInput(body: unknown) {
 }
 
 serveAi('Profil-Check', parseInput, async (input, client) => {
-  // Gestreamt, weil die Prüfung eine Weile braucht
-  const stream = client.beta.messages.stream({
-    model: MODEL,
-    max_tokens: 16000,
-    // Lehnt das Modell ab, springt serverseitig ein passendes Ersatzmodell ein
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'medium', format: betaZodOutputFormat(reviewSchema) },
+  const { output } = await runAnthropic(client, {
     system: REVIEW_SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: reviewUserPrompt(input) }],
+    user: reviewUserPrompt(input),
+    schema: reviewSchema,
+    maxTokens: 16000,
+    effort: 'medium',
   });
-  const message = await stream.finalMessage();
-
-  if (message.stop_reason === 'refusal') return fail(422, 'refused');
-  if (message.stop_reason === 'max_tokens' || !message.parsed_output) {
-    return fail(502, 'incomplete');
-  }
-  return json(200, { review: message.parsed_output });
+  return json(200, { review: output });
 });
