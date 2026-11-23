@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# Deno legt beim Typecheck der Edge Functions deno.lock an
+deno.lock
